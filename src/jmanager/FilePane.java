@@ -29,14 +29,15 @@ public class FilePane {
     private final JButton refreshButton;
 
     //Таблица для отображения содержимого папки и модель данных для нее
-    private JTable tab=new JTable();
-    private TabModel tm=new TabModel();
+    private JTable tab;
+    private TabModel tm;
 
     //Метка для отображения дополнительной информации
     JLabel infoLabel=new JLabel();
 
     //Текущая папка, содержимое которой отображается в tab
     private File folder=new File(System.getProperty("user.home"));
+    private int sortOrder=TabModel.SORT_BY_NAME;    //Порядок сортировки файлов при их отображении на экране
 
     public FilePane() {
         //Предварительные действия по формированию окна программы
@@ -76,6 +77,17 @@ public class FilePane {
         northPanel.add(refreshButton);
         contentPanel.add(northPanel, BorderLayout.NORTH);
 
+        //Создаем центральную панель с таблицей, представляющей текущий каталог
+        tm=new TabModel(folder);
+        tab=new JTable(tm);
+        JScrollPane sp=new JScrollPane(tab);
+        tab.setShowVerticalLines(false);
+        tab.setGridColor(new Color(220,220,200));
+        tab.getTableHeader().setReorderingAllowed(false);
+        tab.getTableHeader().setFont(new Font(null, Font.BOLD, 12));
+        centerPanel.add(sp, BorderLayout.CENTER);
+        contentPanel.add(centerPanel, BorderLayout.CENTER);
+
         //Создаем обработчики событий
         //Обработчик кпоки "Вверх"
         upButton.addActionListener(new ActionListener() {
@@ -84,7 +96,7 @@ public class FilePane {
                 File nextFolder=folder.getParentFile();
                 if(nextFolder==null)nextFolder=folder.toPath().getRoot().toFile();
                 folder=nextFolder;
-                tm.refresh(folder);
+                tm.refresh(folder, sortOrder);
             }
         });
 
@@ -92,10 +104,11 @@ public class FilePane {
         diskList.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(diskList.getSelectedItem()==null)return;
                 File selDisk=new File(diskList.getSelectedItem().toString());
                 if(selDisk.exists() & selDisk.canRead()){
                     folder=selDisk;
-                    tm.refresh(folder);
+                    tm.refresh(folder, sortOrder);
                     return;
                 }
                 JOptionPane.showMessageDialog(contentPanel, "Диск "+diskList.getSelectedItem().toString()+" не доступен для чтения.", "Ошибка доступа к диску", JOptionPane.ERROR_MESSAGE);
@@ -108,7 +121,7 @@ public class FilePane {
             @Override
             public void actionPerformed(ActionEvent e) {
                 refreshDiskList();
-                tm.refresh(folder);
+                tm.refresh(folder, sortOrder);
             }
         });
 
@@ -120,7 +133,7 @@ public class FilePane {
     private void refreshDiskList(){
         File[] roots=File.listRoots();
         diskList.removeAllItems();
-        for(File f: roots)diskList.addItem(f.toString());
+        for(File f: roots)if(f.exists() & f.canRead())diskList.addItem(f.toString());
         for(int i=0;i<roots.length;i++){
             if(roots[i].toString().equals(folder.toPath().getRoot().toString())){
                 diskList.setSelectedIndex(i);
