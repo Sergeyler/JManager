@@ -88,6 +88,14 @@ public class TabModel extends AbstractTableModel{
         return colNames[column];
     }
 
+//    @Override
+//    public Class getColumnClass(int column){
+//        if(column==0)return File.class;
+//        if(column==1)return String.class;
+//        if(column==2 | column==3)return Date.class;
+//        return Object.class;
+//    }
+
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if(columnIndex==0)return fileNames.get(rowIndex);

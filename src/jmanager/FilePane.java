@@ -10,7 +10,7 @@ import subpack.*;
 public class FilePane {
 
     private final JFrame frame;
-    private int W=550;
+    private int W=700;
     private int H=800;
 
     //Панели с контентом
@@ -31,6 +31,7 @@ public class FilePane {
     //Таблица для отображения содержимого папки и модель данных для нее
     private JTable tab;
     private TabModel tm;
+    private TabCellRenderer tcr;
 
     //Метка для отображения дополнительной информации
     JLabel infoLabel=new JLabel("Выберите файл или папку...");
@@ -79,8 +80,12 @@ public class FilePane {
 
         //Создаем центральную панель с таблицей, представляющей текущий каталог
         tm=new TabModel(folder);
+        tcr=new TabCellRenderer();
         tab=new JTable(tm);
+        tab.setDefaultRenderer(Object.class, tcr);
+        tab.setRowHeight(19);
         JScrollPane sp=new JScrollPane(tab);
+        tab.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tab.setShowVerticalLines(false);
         tab.setGridColor(new Color(220,220,200));
         tab.getTableHeader().setReorderingAllowed(false);
