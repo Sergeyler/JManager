@@ -16,8 +16,8 @@ public class FilePane {
     //Панели с контентом
     private JPanel contentPanel=new JPanel(new BorderLayout());
     private JPanel northPanel=new JPanel();
-    private JPanel centerPanel=new JPanel();
-    private JPanel siuthPanel=new JPanel();
+    private JPanel centerPanel=new JPanel(new BorderLayout());
+    private JPanel southPanel=new JPanel();
 
     //Компонент для отображения списка быстрого доступа к дискам
     private JComboBox<String> diskList;
@@ -33,7 +33,7 @@ public class FilePane {
     private TabModel tm;
 
     //Метка для отображения дополнительной информации
-    JLabel infoLabel=new JLabel();
+    JLabel infoLabel=new JLabel("Выберите файл или папку...");
 
     //Текущая папка, содержимое которой отображается в tab
     private File folder=new File(System.getProperty("user.home"));
@@ -60,7 +60,7 @@ public class FilePane {
 
         //Создаем северную панель
         northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.X_AXIS));
-        northPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        northPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
         upButton=new JButton(new ImageIcon("icons\\up.png"));
         upButton.setToolTipText("Вверх");
         northPanel.add(upButton);
@@ -85,8 +85,16 @@ public class FilePane {
         tab.setGridColor(new Color(220,220,200));
         tab.getTableHeader().setReorderingAllowed(false);
         tab.getTableHeader().setFont(new Font(null, Font.BOLD, 12));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         centerPanel.add(sp, BorderLayout.CENTER);
         contentPanel.add(centerPanel, BorderLayout.CENTER);
+
+        //Создаем южную панель
+        southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.X_AXIS));
+        southPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
+        southPanel.add(infoLabel);
+        southPanel.add(Box.createHorizontalGlue());
+        contentPanel.add(southPanel, BorderLayout.SOUTH);
 
         //Создаем обработчики событий
         //Обработчик кпоки "Вверх"
