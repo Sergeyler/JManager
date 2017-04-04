@@ -6,13 +6,6 @@ import java.util.*;
 
 public class TabModel extends AbstractTableModel{
 
-    public static final int SORT_BY_NAME=0;
-    public static final int SORT_BY_TYPE=1;
-    public static final int SORT_BY_CREATE_DATE=3;
-    public static final int SORT_BY_MODIFIED_DATE=4;
-
-    private int directionSort=0;    //Направление сортировки. 0 - по возрастанию. 1 - по убыванию.
-
     private final int colCount=4;                                                         //Количество столбцов
     private final String[] colNames={"Имя", "Тип", "Дата создания", "Дата изменения"};    //Имена столбцов
 
@@ -23,12 +16,11 @@ public class TabModel extends AbstractTableModel{
 
     public TabModel(File folder) {
         super();
-        refresh(folder, SORT_BY_NAME);
+        refresh(folder, true);
     }
 
     //Метод обновляет содержимое таблицы, извлекая данные из объекта folder
-    public final void refresh(File folder, int sortedCol){
-        if(sortedCol<0 | sortedCol>4)return;
+    public final void refresh(File folder, boolean hiddenEnabled){
         fileNames.clear();
         types.clear();
         createDates.clear();

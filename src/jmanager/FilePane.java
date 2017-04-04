@@ -37,7 +37,7 @@ public class FilePane {
 
     //Текущая папка, содержимое которой отображается в tab
     private File folder=new File(System.getProperty("user.home"));
-    private int sortOrder=TabModel.SORT_BY_NAME;    //Порядок сортировки файлов при их отображении на экране
+    private boolean hiddenEnabled=true;
 
     public FilePane() {
         //Предварительные действия по формированию окна программы
@@ -96,7 +96,7 @@ public class FilePane {
                 File nextFolder=folder.getParentFile();
                 if(nextFolder==null)nextFolder=folder.toPath().getRoot().toFile();
                 folder=nextFolder;
-                tm.refresh(folder, sortOrder);
+                tm.refresh(folder, hiddenEnabled);
             }
         });
 
@@ -108,7 +108,7 @@ public class FilePane {
                 File selDisk=new File(diskList.getSelectedItem().toString());
                 if(selDisk.exists() & selDisk.canRead()){
                     folder=selDisk;
-                    tm.refresh(folder, sortOrder);
+                    tm.refresh(folder, hiddenEnabled);
                     return;
                 }
                 JOptionPane.showMessageDialog(contentPanel, "Диск "+diskList.getSelectedItem().toString()+" не доступен для чтения.", "Ошибка доступа к диску", JOptionPane.ERROR_MESSAGE);
@@ -121,7 +121,7 @@ public class FilePane {
             @Override
             public void actionPerformed(ActionEvent e) {
                 refreshDiskList();
-                tm.refresh(folder, sortOrder);
+                tm.refresh(folder, hiddenEnabled);
             }
         });
 
