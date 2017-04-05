@@ -47,6 +47,7 @@ public class TabCellRenderer extends DefaultTableCellRenderer{
             }
         }
 
+        //Обработка дат
         if(c==3 | c==4){
             Date d=(Date)v;
             DateFormat df=DateFormat.getInstance();

@@ -7,8 +7,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.*;
 import java.io.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import subpack.*;
 
 public class FilePane {
@@ -38,7 +36,7 @@ public class FilePane {
     private TabCellRenderer tcr;
 
     //Метка для отображения дополнительной информации
-    JLabel infoLabel=new JLabel("Выберите файл или папку...");
+    JTextField fullFolderPath=new JTextField();
 
     //Чек бокс для выбора отображения скрытых файлов и папок
     private JCheckBox showHiddenElements=new JCheckBox("Показывать скрытые элементы", true);
@@ -104,9 +102,10 @@ public class FilePane {
         //Создаем южную панель
         southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.X_AXIS));
         southPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
-        southPanel.add(infoLabel);
+        fullFolderPath.setEditable(false);
+        fullFolderPath.setText(folder.getAbsolutePath());
+        southPanel.add(fullFolderPath);
         southPanel.add(Box.createHorizontalGlue());
-        showHiddenElements.setHorizontalTextPosition(SwingConstants.RIGHT);
         southPanel.add(showHiddenElements);
         contentPanel.add(southPanel, BorderLayout.SOUTH);
 
@@ -118,6 +117,7 @@ public class FilePane {
                 File nextFolder=folder.getParentFile();
                 if(nextFolder==null)nextFolder=folder.toPath().getRoot().toFile();
                 folder=nextFolder;
+                fullFolderPath.setText(folder.getAbsolutePath());
                 tm.refresh(folder, hiddenEnabled);
             }
         });
@@ -130,6 +130,7 @@ public class FilePane {
                 File selDisk=new File(diskList.getSelectedItem().toString());
                 if(selDisk.exists() & selDisk.canRead()){
                     folder=selDisk;
+                    fullFolderPath.setText(folder.getAbsolutePath());
                     tm.refresh(folder, hiddenEnabled);
                     return;
                 }
@@ -163,14 +164,15 @@ public class FilePane {
     //Метод обновляет список доступных дисков
     private void refreshDiskList(){
         File[] roots=File.listRoots();
-        diskList.removeAllItems();
-        for(File f: roots)if(f.exists() & f.canRead())diskList.addItem(f.toString());
-        for(int i=0;i<roots.length;i++){
-            if(roots[i].toString().equals(folder.toPath().getRoot().toString())){
-                diskList.setSelectedIndex(i);
+        DefaultComboBoxModel<String> cbm=new DefaultComboBoxModel<>();
+        for(File f: roots)if(f.exists() & f.canRead())cbm.addElement(f.toString());
+        for (File root : roots) {
+            if (root.toString().equals(folder.toPath().getRoot().toString())) {
+                cbm.setSelectedItem(root);
                 break;
             }
         }
+        diskList.setModel(cbm);
     }
 
     public static void main(String[] args) {
