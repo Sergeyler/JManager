@@ -3,14 +3,18 @@ package jmanager;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import javax.swing.*;
 import java.io.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import subpack.*;
 
 public class FilePane {
 
     private final JFrame frame;
-    private int W=700;
+    private int W=1000;
     private int H=800;
 
     //Панели с контентом
@@ -35,6 +39,9 @@ public class FilePane {
 
     //Метка для отображения дополнительной информации
     JLabel infoLabel=new JLabel("Выберите файл или папку...");
+
+    //Чек бокс для выбора отображения скрытых файлов и папок
+    private JCheckBox showHiddenElements=new JCheckBox("Показывать скрытые элементы", true);
 
     //Текущая папка, содержимое которой отображается в tab
     private File folder=new File(System.getProperty("user.home"));
@@ -79,7 +86,7 @@ public class FilePane {
         contentPanel.add(northPanel, BorderLayout.NORTH);
 
         //Создаем центральную панель с таблицей, представляющей текущий каталог
-        tm=new TabModel(folder);
+        tm=new TabModel(folder, hiddenEnabled);
         tcr=new TabCellRenderer();
         tab=new JTable(tm);
         tab.setDefaultRenderer(Object.class, tcr);
@@ -99,6 +106,8 @@ public class FilePane {
         southPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         southPanel.add(infoLabel);
         southPanel.add(Box.createHorizontalGlue());
+        showHiddenElements.setHorizontalTextPosition(SwingConstants.RIGHT);
+        southPanel.add(showHiddenElements);
         contentPanel.add(southPanel, BorderLayout.SOUTH);
 
         //Создаем обработчики событий
@@ -134,6 +143,15 @@ public class FilePane {
             @Override
             public void actionPerformed(ActionEvent e) {
                 refreshDiskList();
+                tm.refresh(folder, hiddenEnabled);
+            }
+        });
+
+        //Обработчик выбора режима отображения скрытых элементов
+        showHiddenElements.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                hiddenEnabled=!hiddenEnabled;
                 tm.refresh(folder, hiddenEnabled);
             }
         });
