@@ -12,8 +12,8 @@ import subpack.*;
 public class FilePane {
 
     private final JFrame frame;
-    private int W=1000;
-    private int H=800;
+    private int W=900;
+    private int H=700;
 
     //Панели с контентом
     private JPanel contentPanel=new JPanel(new BorderLayout());
@@ -34,6 +34,7 @@ public class FilePane {
     private JTable tab;
     private TabModel tm;
     private TabCellRenderer tcr;
+    private TabHeaderRenderer thc;
 
     //Метка для отображения дополнительной информации
     JTextField fullFolderPath=new JTextField();
@@ -64,6 +65,9 @@ public class FilePane {
         int yPos=Toolkit.getDefaultToolkit().getScreenSize().height/2-H/2;
         frame.setLocation(xPos, yPos);
 
+        //Создаем панель контента
+        contentPanel.setPreferredSize(new Dimension(W, H));
+
         //Создаем северную панель
         northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.X_AXIS));
         northPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
@@ -72,8 +76,9 @@ public class FilePane {
         northPanel.add(upButton);
         northPanel.add(Box.createHorizontalStrut(10));
         northPanel.add(new JLabel("Диск:"));
-        northPanel.add(Box.createHorizontalStrut(10));
+        northPanel.add(Box.createHorizontalStrut(5));
         diskList=new JComboBox<>();
+        diskList.setMaximumSize(new Dimension(30, 24));
         diskList.setToolTipText("Сменить диск");
         refreshDiskList();
         northPanel.add(diskList);
@@ -86,8 +91,10 @@ public class FilePane {
         //Создаем центральную панель с таблицей, представляющей текущий каталог
         tm=new TabModel(folder, hiddenEnabled);
         tcr=new TabCellRenderer();
+        thc=new TabHeaderRenderer();
         tab=new JTable(tm);
         tab.setDefaultRenderer(Object.class, tcr);
+        tab.getTableHeader().setDefaultRenderer(thc);
         tab.setRowHeight(19);
         tab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         JScrollPane sp=new JScrollPane(tab);
@@ -99,6 +106,13 @@ public class FilePane {
         centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         centerPanel.add(sp, BorderLayout.CENTER);
         contentPanel.add(centerPanel, BorderLayout.CENTER);
+
+        //Устанавливаем ширину столбцов в зависимости от ширины содержащего таблитцу контейнера
+        tab.getColumnModel().getColumn(0).setPreferredWidth((int)(contentPanel.getPreferredSize().getWidth()*0.52));
+        tab.getColumnModel().getColumn(1).setPreferredWidth((int)(contentPanel.getPreferredSize().getWidth()*0.1));
+        tab.getColumnModel().getColumn(2).setPreferredWidth((int)(contentPanel.getPreferredSize().getWidth()*0.1));
+        tab.getColumnModel().getColumn(3).setPreferredWidth((int)(contentPanel.getPreferredSize().getWidth()*0.13));
+        tab.getColumnModel().getColumn(4).setPreferredWidth((int)(contentPanel.getPreferredSize().getWidth()*0.13));
 
         //Создаем южную панель
         southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.X_AXIS));
@@ -161,12 +175,7 @@ public class FilePane {
         frame.add(contentPanel, BorderLayout.CENTER);
         frame.setVisible(true);
 
-        //Устанавливаем ширину столбцов в зависимости от ширины содержащего таблитцу контенера
-        tab.getColumnModel().getColumn(0).setPreferredWidth((int)(sp.getWidth()*0.52));
-        tab.getColumnModel().getColumn(1).setPreferredWidth((int)(sp.getWidth()*0.1));
-        tab.getColumnModel().getColumn(2).setPreferredWidth((int)(sp.getWidth()*0.1));
-        tab.getColumnModel().getColumn(3).setPreferredWidth((int)(sp.getWidth()*0.13));
-        tab.getColumnModel().getColumn(4).setPreferredWidth((int)(sp.getWidth()*0.13));
+
 
     }
 

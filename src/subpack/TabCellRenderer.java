@@ -6,7 +6,6 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.Date;
-
 import javax.swing.table.DefaultTableCellRenderer;
 
 public class TabCellRenderer extends DefaultTableCellRenderer{

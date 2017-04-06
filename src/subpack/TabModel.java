@@ -11,6 +11,10 @@ public class TabModel extends AbstractTableModel{
     private final String[] colNames={"Имя", "Тип", "Размер", "Дата создания", "Дата изменения"};    //Имена столбцов
     private final int colCount=colNames.length;                                                     //Количество столбцов
 
+    private int typeSort=0;
+    private int last_typeSort=-1;
+    private int directionSort=1;
+
     private int folderPos=(-1);    //Граница списка папок в списках атрибутов
 
     private final LinkedList<File> fileNames=new LinkedList<>();    //Массив имен файов и каталогов
@@ -79,6 +83,21 @@ public class TabModel extends AbstractTableModel{
             }
         }
         fireTableDataChanged();
+    }
+
+    //Метод сортирует таблицу
+    private void sort(int ts){
+
+    }
+
+    //Метод возвращает тип текущей сортировки
+    public int getTypeSort(){
+        return typeSort;
+    }
+
+    //Метод возвращает направление текущей сортировки
+    public int getDirectionSort(){
+        return directionSort;
     }
 
     @Override
