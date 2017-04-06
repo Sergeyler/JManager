@@ -89,6 +89,7 @@ public class FilePane {
         tab=new JTable(tm);
         tab.setDefaultRenderer(Object.class, tcr);
         tab.setRowHeight(19);
+        tab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         JScrollPane sp=new JScrollPane(tab);
         tab.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tab.setShowVerticalLines(false);
@@ -105,8 +106,8 @@ public class FilePane {
         fullFolderPath.setEditable(false);
         fullFolderPath.setText(folder.getAbsolutePath());
         southPanel.add(fullFolderPath);
-        southPanel.add(Box.createHorizontalGlue());
         southPanel.add(showHiddenElements);
+        showHiddenElements.setHorizontalTextPosition(SwingConstants.LEFT);
         contentPanel.add(southPanel, BorderLayout.SOUTH);
 
         //Создаем обработчики событий
@@ -159,6 +160,14 @@ public class FilePane {
 
         frame.add(contentPanel, BorderLayout.CENTER);
         frame.setVisible(true);
+
+        //Устанавливаем ширину столбцов в зависимости от ширины содержащего таблитцу контенера
+        tab.getColumnModel().getColumn(0).setPreferredWidth((int)(sp.getWidth()*0.52));
+        tab.getColumnModel().getColumn(1).setPreferredWidth((int)(sp.getWidth()*0.1));
+        tab.getColumnModel().getColumn(2).setPreferredWidth((int)(sp.getWidth()*0.1));
+        tab.getColumnModel().getColumn(3).setPreferredWidth((int)(sp.getWidth()*0.13));
+        tab.getColumnModel().getColumn(4).setPreferredWidth((int)(sp.getWidth()*0.13));
+
     }
 
     //Метод обновляет список доступных дисков

@@ -5,8 +5,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TabModel extends AbstractTableModel{
 
