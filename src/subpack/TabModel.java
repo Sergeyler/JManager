@@ -9,32 +9,24 @@ import java.util.*;
 public class TabModel extends AbstractTableModel{
 
     private final String[] colNames={"Имя", "Тип", "Размер", "Дата создания", "Дата изменения"};    //Имена столбцов
-    private final int colCount=colNames.length;                                                     //Количество столбцов
 
-    private int typeSort=0;
-    private int last_typeSort=-1;
-    private int directionSort=1;
+    private int typeSort=0;        //Тип сортировки
+    private int directionSort=1;   //Направление сортировки: 1 - по возрастанию, (-1) - по убыванию
 
     private int folderPos=(-1);    //Граница списка папок в списках атрибутов
 
-    private final LinkedList<File> fileNames=new LinkedList<>();    //Массив имен файов и каталогов
-    private final LinkedList<String> types=new LinkedList<>();      //Массив типов файлов (расширений)
-    private final LinkedList<Long> sizeOfFiles=new LinkedList<>();  //Размеры файлов
-    private final LinkedList<Date> createDates=new LinkedList<>();  //Массив дат создания
-    private final LinkedList<Date> modifiedDate=new LinkedList<>(); //Массив дат модификации
+    private final List[] cols=new List[colNames.length];    //Массив, содержащий столбцы таблицы
 
     public TabModel(File folder, boolean hiddenEnabled) {
         super();
+        for(int i=0;i<cols.length;i++)cols[i]=new LinkedList<Comparable>();
         refresh(folder, hiddenEnabled);
     }
 
     //Метод обновляет содержимое таблицы, извлекая данные из объекта folder
     public final void refresh(File folder, boolean hiddenEnabled){
         //Сбасываем значения атрибутов файлов
-        fileNames.clear();
-        types.clear();
-        createDates.clear();
-        modifiedDate.clear();
+        for(int i=0;i<cols.length;i++)cols[i].clear();
         folderPos=(-1);
 
         //Получаем список файлов
@@ -44,8 +36,14 @@ public class TabModel extends AbstractTableModel{
                 return pathname.isHidden()?hiddenEnabled:true;
             }
         });
-        if(lst==null)return;
-        if(lst.length==0)return;
+        if(lst==null){
+            fireTableDataChanged();
+            return;
+        }
+        if(lst.length==0){
+            fireTableDataChanged();
+            return;
+        }
 
         //Формируем списки атрибутов
         Date dc;    //Даты создания
@@ -63,11 +61,11 @@ public class TabModel extends AbstractTableModel{
             }
             if(f.isDirectory()){
                 folderPos++;
-                fileNames.add(folderPos, f);
-                types.add(folderPos, "<DIR>");
-                sizeOfFiles.add(folderPos, new Long(-1));
-                createDates.add(folderPos, dc);
-                modifiedDate.add(folderPos, dm);
+                cols[0].add(folderPos, f);
+                cols[1].add(folderPos, "<DIR>");
+                cols[2].add(folderPos, new Long(-1));
+                cols[3].add(folderPos, dc);
+                cols[4].add(folderPos, dm);
             }
             if(f.isFile()){
                 //Определяем тип файла - то есть его расширение
@@ -75,19 +73,60 @@ public class TabModel extends AbstractTableModel{
                 String extendFile="";
                 int dotPos=nameFile.lastIndexOf(".");
                 if((dotPos==(-1)) | (dotPos==0) | (dotPos==nameFile.length()))extendFile=""; else extendFile=nameFile.substring(dotPos+1);
-                fileNames.add(f);
-                types.add(extendFile);
-                sizeOfFiles.add(f.length());
-                createDates.add(dc);
-                modifiedDate.add(dm);
+                cols[0].add(f);
+                cols[1].add(extendFile);
+                cols[2].add(f.length());
+                cols[3].add(dc);
+                cols[4].add(dm);
             }
         }
-        fireTableDataChanged();
+        sort(-1);
     }
 
     //Метод сортирует таблицу
-    private void sort(int ts){
+    public void sort(int ts){
 
+        //Если ts==(-1), то метод вызван из метода refresh и осуществить сортировку нужно используя текущие параметры
+        if(ts!=(-1)){
+            if(ts==typeSort)directionSort*=(-1);
+            if(ts!=typeSort)directionSort=1;
+            typeSort=ts;
+        }
+
+        int[] range=new int[4];
+        range[0]=0; range[1]=folderPos; range[2]=folderPos+1; range[3]=cols[0].size()-1;
+        int start;
+        int end;
+        boolean isSwap;
+        Comparable a;
+        Comparable b;
+        int c;
+        for(int i=0; i<3;i+=2){
+            start=range[i];
+            end=range[i+1];
+            isSwap=true;
+            while (isSwap) {
+                isSwap=false;
+                for(int j=start; j<end; j++){
+                    a=(Comparable) cols[typeSort].get(j);
+                    b=(Comparable) cols[typeSort].get(j+1);
+                    c=a.compareTo(b);
+                    if(c!=0)c=c/Math.abs(c);
+                    if(c==directionSort){
+                        for(int t=0;t<cols.length;t++){
+                            a=(Comparable) cols[t].get(j);
+                            b=(Comparable) cols[t].get(j+1);
+                            cols[t].set(j, b);
+                            cols[t].set(j+1, a);
+                        }
+                        isSwap=true;
+                    }
+                }
+            }
+        }
+
+        //Оповещаем слушателей об обновлении модели данных
+        fireTableDataChanged();
     }
 
     //Метод возвращает тип текущей сортировки
@@ -102,12 +141,12 @@ public class TabModel extends AbstractTableModel{
 
     @Override
     public int getRowCount() {
-        return fileNames.size();
+        return cols[0].size();
     }
 
     @Override
     public int getColumnCount() {
-        return colCount;
+        return cols.length;
     }
 
     @Override
@@ -117,12 +156,10 @@ public class TabModel extends AbstractTableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        if(columnIndex==0)return fileNames.get(rowIndex);
-        if(columnIndex==1)return types.get(rowIndex);
-        if(columnIndex==2)return sizeOfFiles.get(rowIndex);
-        if(columnIndex==3)return createDates.get(rowIndex);
-        if(columnIndex==4)return modifiedDate.get(rowIndex);
-        return new Object();
+        if(columnIndex>=0 & columnIndex<cols.length){
+            return cols[columnIndex].get(rowIndex);
+        }
+        return "null";
     }
 
 }

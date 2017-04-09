@@ -5,15 +5,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.*;
 import java.io.*;
 import subpack.*;
 
 public class FilePane {
-
-    private final JFrame frame;
-    private int W=900;
-    private int H=700;
 
     //Панели с контентом
     private JPanel contentPanel=new JPanel(new BorderLayout());
@@ -39,38 +37,20 @@ public class FilePane {
     //Метка для отображения дополнительной информации
     JTextField fullFolderPath=new JTextField();
 
-    //Чек бокс для выбора отображения скрытых файлов и папок
-    private JCheckBox showHiddenElements=new JCheckBox("Показывать скрытые элементы", true);
-
     //Текущая папка, содержимое которой отображается в tab
     private File folder=new File(System.getProperty("user.home"));
-    private boolean hiddenEnabled=true;
+    private boolean hiddenEnabled=false;
 
-    public FilePane() {
-        //Предварительные действия по формированию окна программы
-        String laf=UIManager.getSystemLookAndFeelClassName();
-        try {
-            UIManager.setLookAndFeel(laf);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex){
-            JOptionPane.showMessageDialog(null, "Возникла ошибка при попытке переключить стиль интерфейса. Работа программы будет прекращена", "Ошибка", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
-        }
-        frame=new JFrame("JManager");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(W, H);
-        frame.setIconImage(new ImageIcon("icons\\logo.png").getImage());
-        frame.setResizable(false);
-        frame.setLayout(new BorderLayout(10, 10));
-        int xPos=Toolkit.getDefaultToolkit().getScreenSize().width/2-W/2;
-        int yPos=Toolkit.getDefaultToolkit().getScreenSize().height/2-H/2;
-        frame.setLocation(xPos, yPos);
+    //Чек бокс для выбора отображения скрытых файлов и папок
+    private JCheckBox showHiddenElements=new JCheckBox("Показывать скрытые элементы", hiddenEnabled);
 
+    public FilePane(int W, int H) {
         //Создаем панель контента
         contentPanel.setPreferredSize(new Dimension(W, H));
 
         //Создаем северную панель
         northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.X_AXIS));
-        northPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
+        northPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
         upButton=new JButton(new ImageIcon("icons\\up.png"));
         upButton.setToolTipText("Вверх");
         northPanel.add(upButton);
@@ -98,12 +78,12 @@ public class FilePane {
         tab.setRowHeight(19);
         tab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         JScrollPane sp=new JScrollPane(tab);
-        tab.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tab.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tab.setShowVerticalLines(false);
         tab.setGridColor(new Color(220,220,200));
         tab.getTableHeader().setReorderingAllowed(false);
         tab.getTableHeader().setFont(new Font(null, Font.BOLD, 12));
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 5));
         centerPanel.add(sp, BorderLayout.CENTER);
         contentPanel.add(centerPanel, BorderLayout.CENTER);
 
@@ -116,7 +96,7 @@ public class FilePane {
 
         //Создаем южную панель
         southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.X_AXIS));
-        southPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
+        southPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 5));
         fullFolderPath.setEditable(false);
         fullFolderPath.setText(folder.getAbsolutePath());
         southPanel.add(fullFolderPath);
@@ -125,7 +105,7 @@ public class FilePane {
         contentPanel.add(southPanel, BorderLayout.SOUTH);
 
         //Создаем обработчики событий
-        //Обработчик кпоки "Вверх"
+        //Обработчик кнопки "Вверх"
         upButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -172,10 +152,52 @@ public class FilePane {
             }
         });
 
-        frame.add(contentPanel, BorderLayout.CENTER);
-        frame.setVisible(true);
+        //Обработчик щелчка на столбце
+        tab.getTableHeader().addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                if(e.getButton()!=1)return;
+                if(e.getClickCount()!=1)return;
+                tm.sort(tab.columnAtPoint(new Point(e.getX(), e.getY())));
 
+                //Вызов этого метода необходим для корректной прорисовки заголовков столбцов
+                tab.getTableHeader().repaint();
+            }
+        });
 
+        //Обработчик щелчка левой кнопкой мыши на строке
+        tab.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e){
+                if(e.getButton()!=1)return;
+                if(e.getClickCount()!=2)return;
+                File f=(File)tm.getValueAt(tab.getSelectedRow(), 0);
+
+                //Проверяем существование и доступность выбранного элемента
+                if(!f.exists() | !f.canRead()){
+                    JOptionPane.showMessageDialog(contentPanel, f.getName()+" не существует или недоступен для чтения", "Нет доступа к элементу", JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                //Пытаемся открыть элемент
+                //Если это папка
+                if(f.isDirectory()){
+                    folder=f;
+                    tm.refresh(folder, hiddenEnabled);
+                    fullFolderPath.setText(folder.getAbsolutePath());
+                    return;
+                }
+
+                //Если это файл
+                if(f.isFile()){
+                    try {
+                        Desktop.getDesktop().open(f);
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(contentPanel, "Не удалось открыть файл "+f.getName(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
 
     }
 
@@ -193,8 +215,9 @@ public class FilePane {
         diskList.setModel(cbm);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(()->{FilePane m=new FilePane();});
+    //Метод возвращает панель с контентом
+    public JPanel getContentPanel(){
+        return contentPanel;
     }
 
 }
