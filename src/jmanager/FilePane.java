@@ -51,7 +51,7 @@ public class FilePane {
         //Создаем северную панель
         northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.X_AXIS));
         northPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
-        upButton=new JButton(new ImageIcon("icons\\up.png"));
+        upButton=new JButton(new ImageIcon("icons\\up_blue.png"));
         upButton.setToolTipText("Вверх");
         northPanel.add(upButton);
         northPanel.add(Box.createHorizontalStrut(10));
@@ -63,7 +63,7 @@ public class FilePane {
         refreshDiskList();
         northPanel.add(diskList);
         northPanel.add(Box.createHorizontalGlue());
-        refreshButton=new JButton(new ImageIcon("icons\\refresh.png"));
+        refreshButton=new JButton(new ImageIcon("icons\\refresh_blue.png"));
         refreshButton.setToolTipText("Обновить");
         northPanel.add(refreshButton);
         contentPanel.add(northPanel, BorderLayout.NORTH);
