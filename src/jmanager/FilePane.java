@@ -44,6 +44,10 @@ public class FilePane {
     //Чек бокс для выбора отображения скрытых файлов и папок
     private JCheckBox showHiddenElements=new JCheckBox("Показывать скрытые элементы", hiddenEnabled);
 
+    //Всплывающее меню
+    private JPopupMenu pm=null;
+    private String pm_actionPref;
+
     public FilePane(int W, int H) {
         //Создаем панель контента
         contentPanel.setPreferredSize(new Dimension(W, H));
@@ -140,6 +144,7 @@ public class FilePane {
             public void actionPerformed(ActionEvent e) {
                 refreshDiskList();
                 tm.refresh(folder, hiddenEnabled);
+                fullFolderPath.setText(folder.getAbsolutePath());
             }
         });
 
@@ -165,8 +170,9 @@ public class FilePane {
             }
         });
 
-        //Обработчик щелчка левой кнопкой мыши на строке
+        //Обработчик мышки на таблице
         tab.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e){
                 if(e.getButton()!=1)return;
@@ -197,6 +203,29 @@ public class FilePane {
                     }
                 }
             }
+
+            @Override
+            public void mousePressed(MouseEvent e){
+                if(e.getButton()!=3)return;
+                if(pm==null)return;
+                JMenuItem item;
+                String itemActionCom;
+                for(int i=0;i<pm.getComponentCount();i++){
+                    if(!(pm.getComponent(i) instanceof JMenuItem))continue;
+                    item=(JMenuItem)pm.getComponent(i);
+                    itemActionCom=item.getActionCommand();
+                    if(itemActionCom.indexOf('_')>(-1)){
+                        itemActionCom=itemActionCom.substring(0, itemActionCom.indexOf('_')+1)+pm_actionPref;
+                    }
+                    if(itemActionCom.equals("copy_left"))item.setText("Копировать вправо");
+                    if(itemActionCom.equals("copy_right"))item.setText("Копировать влево");
+                    if(itemActionCom.equals("move_left"))item.setText("Переместить вправо");
+                    if(itemActionCom.equals("move_right"))item.setText("Переместить влево");
+                    item.setActionCommand(itemActionCom);
+                }
+                pm.show(tab, e.getX(), e.getY());
+            }
+
         });
 
     }
@@ -218,6 +247,37 @@ public class FilePane {
     //Метод возвращает панель с контентом
     public JPanel getContentPanel(){
         return contentPanel;
+    }
+
+    //Метод возвращает текущую папку
+    public File getFolder(){
+        return folder;
+    }
+
+    //Метод возвращает массив выбранных файлов и папок
+    public File[] getSelectedItems(){
+        int index[]=tab.getSelectedRows();
+        File[] f=new File[index.length];
+        for(int j=0;j<index.length;j++)f[j]=(File)tm.getValueAt(index[j], 0);
+        return f;
+    }
+
+    //Метод обновляет содержимое панели и список дисков
+    public void refreshPane(){
+        refreshDiskList();
+        tm.refresh(folder, hiddenEnabled);
+        fullFolderPath.setText(folder.getAbsolutePath());
+    }
+
+    //Метод устанавливает всплывающе меню для панели
+    public void setPopupMenu(JPopupMenu p, String actionPref){
+        pm=p;
+        pm_actionPref=actionPref;
+    }
+
+    //Метод выделяет все строки таблицы
+    public void selectAll(){
+        tab.getSelectionModel().setSelectionInterval(0, tm.getRowCount());
     }
 
 }

@@ -2,6 +2,8 @@ package jmanager;
 
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
@@ -31,9 +33,18 @@ public class MainClass {
     private final JButton move_right=new JButton(new ImageIcon("icons\\move_small.png"));
     private final JButton copy_right=new JButton(new ImageIcon("icons\\copy_small.png"));
 
+    private final JPopupMenu pm=new JPopupMenu();
+    private final JMenuItem propertiesItem=new JMenuItem("Свойства");
+    private final JMenuItem allotItem=new JMenuItem("Выделить все");
+    private final JMenuItem renameItem=new JMenuItem("Переименовать");
+    private final JMenuItem createItem=new JMenuItem("Создать папку");
+    private final JMenuItem delItem=new JMenuItem("Удалить");
+    private final JMenuItem moveItem=new JMenuItem("Переместить");
+    private final JMenuItem copyItem=new JMenuItem("Копировать");
+
     private final JPanel centerPanel=new JPanel();
-    private final JPanel left;
-    private final JPanel right;
+    private final FilePane leftFilePane;
+    private final FilePane rightFileJPane;
 
     public MainClass() {
         //Предварительные действия по формированию окна программы
@@ -58,36 +69,54 @@ public class MainClass {
         northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.X_AXIS));
         northPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+        //Формируем левую последовательность кнопок
         northPanel.add(properties_left);
+        properties_left.setActionCommand("properties_left");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(allot_left);
+        allot_left.setActionCommand("allot_left");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(rename_left);
+        rename_left.setActionCommand("rename_left");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(create_left);
+        create_left.setActionCommand("create_left");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(del_left);
+        del_left.setActionCommand("del_left");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(move_left);
+        move_left.setActionCommand("move_left");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(copy_left);
+        copy_left.setActionCommand("copy_left");
 
+        //Добавляем заполнитель
         northPanel.add(Box.createHorizontalGlue());
 
+        //Формируем правую последовательность кнопок
         northPanel.add(properties_right);
+        properties_right.setActionCommand("properties_right");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(allot_right);
+        allot_right.setActionCommand("allot_right");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(rename_right);
+        rename_right.setActionCommand("rename_right");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(create_right);
+        create_right.setActionCommand("create_right");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(del_right);
+        del_right.setActionCommand("del_right");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(move_right);
+        move_right.setActionCommand("move_right");
         northPanel.add(Box.createHorizontalStrut(5));
         northPanel.add(copy_right);
+        copy_right.setActionCommand("copy_right");
 
+        //Формируем поведение кнопок основных действий при наведении на них курсора. Для левой панели...
         properties_left.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -104,7 +133,7 @@ public class MainClass {
 
             @Override
             public void mouseEntered(MouseEvent e){
-                allot_left.setText("Выделить все/Снять выделение");
+                allot_left.setText("Выделить все");
             }
 
             @Override
@@ -173,6 +202,7 @@ public class MainClass {
             }
         });
 
+        //...и для правой
         properties_right.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -189,7 +219,7 @@ public class MainClass {
 
             @Override
             public void mouseEntered(MouseEvent e){
-                allot_right.setText("Выделить все/Снять выделение");
+                allot_right.setText("Выделить все");
             }
 
             @Override
@@ -258,17 +288,73 @@ public class MainClass {
             }
         });
 
+        //Создаем всплывающее меню для панелей
+        pm.add(copyItem);
+        copyItem.setActionCommand("copy_");
+        pm.add(moveItem);
+        moveItem.setActionCommand("move_");
+        pm.add(delItem);
+        delItem.setActionCommand("del_");
+        pm.addSeparator();
+        pm.add(allotItem);
+        allotItem.setActionCommand("allot_");
+        pm.add(renameItem);
+        renameItem.setActionCommand("rename_");
+        pm.add(createItem);
+        createItem.setActionCommand("create_");
+        pm.addSeparator();
+        pm.add(propertiesItem);
+        propertiesItem.setActionCommand("properties_");
+
         //Формируем центральную панель
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.X_AXIS));
-        left=new FilePane((int)(W/2), H).getContentPanel();
-        right=new FilePane((int)(W/2), H).getContentPanel();
-        centerPanel.add(left);
-        centerPanel.add(right);
-
+        leftFilePane=new FilePane((int)(W/2), H);
+        rightFileJPane=new FilePane((int)(W/2), H);
+        leftFilePane.setPopupMenu(pm, "left");
+        rightFileJPane.setPopupMenu(pm, "right");
+        centerPanel.add(leftFilePane.getContentPanel());
+        centerPanel.add(rightFileJPane.getContentPanel());
         frame.add(northPanel, BorderLayout.NORTH);
         frame.add(centerPanel, BorderLayout.CENTER);
+
+        //Прописываем обработчик для компонентов
+        copyItem.addActionListener(a);
+        moveItem.addActionListener(a);
+        delItem.addActionListener(a);
+        allotItem.addActionListener(a);
+        renameItem.addActionListener(a);
+        createItem.addActionListener(a);
+        propertiesItem.addActionListener(a);
+
+        properties_left.addActionListener(a);
+        allot_left.addActionListener(a);
+        rename_left.addActionListener(a);
+        create_left.addActionListener(a);
+        del_left.addActionListener(a);
+        move_left.addActionListener(a);
+        copy_left.addActionListener(a);
+
+        properties_right.addActionListener(a);
+        allot_right.addActionListener(a);
+        rename_right.addActionListener(a);
+        create_right.addActionListener(a);
+        del_right.addActionListener(a);
+        move_right.addActionListener(a);
+        copy_right.addActionListener(a);
+
+        //Выводим главное окно на экран
         frame.setVisible(true);
     }
+
+    //Обработчик событий
+    private final ActionListener a=new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println(e.getActionCommand());
+        }
+
+    };
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(()->{MainClass m=new MainClass();});
