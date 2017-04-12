@@ -268,6 +268,7 @@ public class MainClass {
         frame.add(northPanel, BorderLayout.NORTH);
         frame.add(centerPanel, BorderLayout.CENTER);
         frame.setVisible(true);
+        
     }
 
     public static void main(String[] args) {
