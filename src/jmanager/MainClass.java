@@ -318,41 +318,83 @@ public class MainClass {
         frame.add(centerPanel, BorderLayout.CENTER);
 
         //Прописываем обработчик для компонентов
-        copyItem.addActionListener(a);
-        moveItem.addActionListener(a);
-        delItem.addActionListener(a);
-        allotItem.addActionListener(a);
-        renameItem.addActionListener(a);
-        createItem.addActionListener(a);
-        propertiesItem.addActionListener(a);
+        copyItem.addActionListener(act);
+        moveItem.addActionListener(act);
+        delItem.addActionListener(act);
+        allotItem.addActionListener(act);
+        renameItem.addActionListener(act);
+        createItem.addActionListener(act);
+        propertiesItem.addActionListener(act);
 
-        properties_left.addActionListener(a);
-        allot_left.addActionListener(a);
-        rename_left.addActionListener(a);
-        create_left.addActionListener(a);
-        del_left.addActionListener(a);
-        move_left.addActionListener(a);
-        copy_left.addActionListener(a);
+        properties_left.addActionListener(act);
+        allot_left.addActionListener(act);
+        rename_left.addActionListener(act);
+        create_left.addActionListener(act);
+        del_left.addActionListener(act);
+        move_left.addActionListener(act);
+        copy_left.addActionListener(act);
 
-        properties_right.addActionListener(a);
-        allot_right.addActionListener(a);
-        rename_right.addActionListener(a);
-        create_right.addActionListener(a);
-        del_right.addActionListener(a);
-        move_right.addActionListener(a);
-        copy_right.addActionListener(a);
+        properties_right.addActionListener(act);
+        allot_right.addActionListener(act);
+        rename_right.addActionListener(act);
+        create_right.addActionListener(act);
+        del_right.addActionListener(act);
+        move_right.addActionListener(act);
+        copy_right.addActionListener(act);
 
         //Выводим главное окно на экран
         frame.setVisible(true);
-        
+
     }
 
     //Обработчик событий
-    private final ActionListener a=new ActionListener() {
+    private final ActionListener act=new ActionListener() {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println(e.getActionCommand());
+            //Определяем команду и панели - "источник" и "цель"
+            String pane;
+            String command;
+            int pos=e.getActionCommand().indexOf('_');
+            pane=e.getActionCommand().substring(pos+1);
+            command=e.getActionCommand().substring(0, pos);
+            FilePane source=null;
+            FilePane target=null;
+            if(pane.equals("left")){
+                source=leftFilePane;
+                target=rightFileJPane;
+            }
+            if(pane.equals("right")){
+                source=rightFileJPane;
+                target=leftFilePane;
+            }
+
+            //В зависимости от выбранной команды выбираем действие
+            switch(command){
+                case "properties":{
+                    break;
+                }
+                case "allot":{
+                    break;
+                }
+                case "rename":{
+                    break;
+                }
+                case "create":{
+                    break;
+                }
+                case "del":{
+                    break;
+                }
+                case "move":{
+                    break;
+                }
+                case "copy":{
+                    break;
+                }
+            }
+
+            System.out.println("command="+command+" source="+source+" target="+target);
         }
 
     };

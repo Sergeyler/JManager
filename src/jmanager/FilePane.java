@@ -280,4 +280,9 @@ public class FilePane {
         tab.getSelectionModel().setSelectionInterval(0, tm.getRowCount());
     }
 
+    @Override
+    public String toString(){
+        return pm_actionPref;
+    }
+
 }
