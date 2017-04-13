@@ -377,6 +377,7 @@ public class MainClass {
                     break;
                 }
                 case "allot":{
+                    source.selectAll();
                     break;
                 }
                 case "rename":{
