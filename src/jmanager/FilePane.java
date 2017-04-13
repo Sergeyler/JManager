@@ -280,6 +280,23 @@ public class FilePane {
         tab.getSelectionModel().setSelectionInterval(0, tm.getRowCount());
     }
 
+    //Метод делает выбранными строки, соответствующие файлам (папкам) из массива f
+    public void setSelected(File[] f){
+        tab.getSelectionModel().clearSelection();
+        for(File fFile: f){
+            for(int i=0;i<tm.getRowCount();i++)if(fFile.equals(tm.getValueAt(i, 0)))tab.getSelectionModel().addSelectionInterval(i, i);
+        }
+    }
+
+    //Метод делает выбранной строку, соответствующую файлу (папке) f
+    public void setSelected(File f){
+        tab.getSelectionModel().clearSelection();
+        for(int i=0;i<tm.getRowCount();i++)if(f.equals(tm.getValueAt(i, 0))){
+            tab.getSelectionModel().setSelectionInterval(i, i);
+            break;
+        }
+    }
+
     @Override
     public String toString(){
         return pm_actionPref;

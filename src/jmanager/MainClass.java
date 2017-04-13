@@ -8,6 +8,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
 import fileutilities.*;
+import java.io.File;
 
 public class MainClass {
 
@@ -383,8 +384,11 @@ public class MainClass {
                 }
                 case "create":{
                     frame.setEnabled(false);
-                    Creater.createFolder(source.getFolder());
-                    source.refreshPane();
+                    File f=Creater.createFolder(source.getFolder());
+                    if(f!=null){
+                        source.refreshPane();
+                        source.setSelected(f);
+                    }
                     frame.setEnabled(true);
                     frame.toFront();
                     break;
@@ -400,7 +404,6 @@ public class MainClass {
                 }
             }
 
-            System.out.println("command="+command+" source="+source+" target="+target);
         }
 
     };
