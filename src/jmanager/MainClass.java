@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
+import fileutilities.*;
 
 public class MainClass {
 
@@ -381,6 +382,11 @@ public class MainClass {
                     break;
                 }
                 case "create":{
+                    frame.setEnabled(false);
+                    Creater.createFolder(source.getFolder());
+                    source.refreshPane();
+                    frame.setEnabled(true);
+                    frame.toFront();
                     break;
                 }
                 case "del":{
