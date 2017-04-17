@@ -67,6 +67,12 @@ public class MainClass {
         int yPos=Toolkit.getDefaultToolkit().getScreenSize().height/2-H/2;
         frame.setLocation(xPos, yPos);
 
+        //Следующие строки нужны для локализации диалоговых окон
+        UIManager.put("OptionPane.yesButtonText", "Да");
+        UIManager.put("OptionPane.noButtonText", "Нет");
+        UIManager.put("OptionPane.cancelButtonText", "Отмена");
+        UIManager.put("OptionPane.inputDialogTitle", "Введите имя");
+
         //Формируем северную панель
         northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.X_AXIS));
         northPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -382,7 +388,7 @@ public class MainClass {
                 }
                 case "rename":{
                     frame.setEnabled(false);
-                    File[] f=Renamer.renameFile(source.getSelectedItems());
+                    File[] f=Renamer.renameFile(source.getSelectedItems(), frame);
                     if(f!=null){
                         source.refreshPane();
                         source.setSelected(f);

@@ -1,5 +1,7 @@
 package fileutilities;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.io.File;
 import java.util.LinkedList;
 import javax.swing.*;
@@ -9,7 +11,7 @@ public class Renamer {
 
     //Важно! Метод возвращает null, если не удалось переименовать ни один объект из списка f
     //Если переименование было выполнено, пусть даже частично, то метод возвращает массив переименованных объектов.
-    public static File[] renameFile(File[] f){
+    public static File[] renameFile(File[] f, JFrame frame){
         //Пул переименованных объектов
         LinkedList<File> pool=new LinkedList<>();
 
@@ -32,18 +34,14 @@ public class Renamer {
         }
 
         //Запрашиваем новое имя
-        //Сперва создаем вспомогаиельные переменные
+        //Сперва создаем вспомогательные переменные
         String name=null;
         char[] disabledChars={'\\', '/', ':', '*', '?', '\"', '<', '>', '|'};
         boolean isFind=false;
+
         while (true) {
-            name=JOptionPane.showInputDialog(null, "Введите новое имя", startName);
 
-            JPanel j=new JPanel();
-            j.add(new JLabel("Привет!"));
-
-            int showConfirmDialog = JOptionPane.showConfirmDialog(null, j, "Проверка", JOptionPane.PLAIN_MESSAGE);
-
+            name=JOptionPane.showInputDialog(null, "Введите имя", startName);
 
             System.out.println(name);
 
@@ -53,11 +51,6 @@ public class Renamer {
         File[] poolArray=new File[pool.size()];
         poolArray=pool.toArray(poolArray);
         return (poolArray.length==0?null:poolArray);
-    }
-
-    private String showInputDialog(String startText){
-
-        return null;
     }
 
     //Метод возвращает расширение файла nameFile. Если расширения нет - возвращает пустую строку.
