@@ -23,6 +23,7 @@ public class Creater {
             name=JOptionPane.showInputDialog(null, "Введине имя для новой папки", "Введите имя", JOptionPane.QUESTION_MESSAGE);
             //Если пользователь отказался от ввода имени или ввел пустое имя, интерпретируем это как отказ от ввода
             if(name==null)return null;
+            name=name.trim();
             if(name.equals(""))return null;
             //Проверяем введенное имя на наличие запрещенных символов
             isFind=false;

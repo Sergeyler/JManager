@@ -381,6 +381,14 @@ public class MainClass {
                     break;
                 }
                 case "rename":{
+                    frame.setEnabled(false);
+                    File[] f=Renamer.renameFile(source.getSelectedItems());
+                    if(f!=null){
+                        source.refreshPane();
+                        source.setSelected(f);
+                    }
+                    frame.setEnabled(true);
+                    frame.toFront();
                     break;
                 }
                 case "create":{
