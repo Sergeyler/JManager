@@ -2,7 +2,7 @@ package fileutilities;
 
 import java.io.File;
 import java.util.LinkedList;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 //Класс предназначен для переименования объектов и групп объектов
 public class Renamer {
@@ -39,7 +39,11 @@ public class Renamer {
         while (true) {
             name=JOptionPane.showInputDialog(null, "Введите новое имя", startName);
 
-            
+            JPanel j=new JPanel();
+            j.add(new JLabel("Привет!"));
+
+            int showConfirmDialog = JOptionPane.showConfirmDialog(null, j, "Проверка", JOptionPane.PLAIN_MESSAGE);
+
 
             System.out.println(name);
 
@@ -52,6 +56,7 @@ public class Renamer {
     }
 
     private String showInputDialog(String startText){
+
         return null;
     }
 
