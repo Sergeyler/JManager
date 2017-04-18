@@ -6,31 +6,61 @@ import javax.swing.*;
 
 public class Renamer {
 
-    //Метод влзвращает null, если переименование не произведено. Или возвращает список (не нулевой длины) объектов, переименование которых было выполнено
+    //Метод возвращает null, если переименование не произведено. Или возвращает список (не нулевой длины) объектов, переименование которых было выполнено
     public static File[] renameFile(File[] f){
-        if(f.length==0)return null;                    //Если передан пустой массив
-        if(f.length==1)return new File[]{R1(f[0])};    //Если передан массив из одного элемента
-        if(f.length>1)return R2(f);                    //Если предполагается множественное переименование
+        if(f.length==0)return null;
+        if(f.length==1){
+            File fTmp=R1(f[0]);
+            if(fTmp==null) return null;
+            return new File[]{fTmp};
+        }
+        if(f.length>1)return R2(f);
         return null;
     }
 
     //Метод, предназначенный для переименования еденичных объектов
     private static File R1(File f){
-        return null;
+        //Проверяем доступность элемента
+        if(!f.exists()){
+            JOptionPane.showMessageDialog(null, "<html>Объект "+f.getAbsolutePath()+" недоступен.<br>Возможно он был переимещен или переименован.", "Ошибка", JOptionPane.INFORMATION_MESSAGE);
+            return null;
+        }
+
+        //Объявляем вспомогательные переменные
+        File fTmp=null;
+        String name=null;
+
+        //Запрашиваем новое имя для объекта
+        if(f.isFile())name=getName(f.getName(), "<html>Введите имя.<br>Обратите внимание, что в случае смены расширения файл может оказаться недоступным");
+        if(f.isDirectory())name=getName(f.getName(), "Введите имя папки");
+        if(name==null)return null;
+
+        //Пробуем переименовать
+        fTmp=new File((f.getParent()==null)?(f.toPath().getRoot().toString()):(f.getParent())+File.separator+name);
+        boolean successfullRename=f.renameTo(fTmp);
+        if(!successfullRename){
+            JOptionPane.showMessageDialog(null, "<html>Не удалось переименовать папку.<br>Возможно она была удалена, либо перемещена. Либо у Вас нет прав на ее переименование", "Ошибка переименования", JOptionPane.INFORMATION_MESSAGE);
+            return null;
+        }
+
+        //Возвращаем результат - ссылку на переименованный объект
+        return fTmp;
+
     }
 
     //Метод, предназначенный для переименования множества объектов
     private static File[] R2(File[] f){
+        System.out.println("Данная функция еще не реализована");
         return null;
     }
 
     //Метод запрашивает имя папки или файла у пользователя. Возвращает null, если пользователь отказался от ввода
-    private static String getName(String startName){
+    private static String getName(String startName, String msg){
         String name="";
         boolean isFind;
         char[] disabledChars={'\\', '/', ':', '*', '?', '\"', '<', '>', '|'};
         while (true) {
-            name=JOptionPane.showInputDialog(null, "Введите имя", startName);
+            name=JOptionPane.showInputDialog(null, msg, startName);
             if(name==null)return null;
             name=name.trim();
             if(name.equals(""))return null;
@@ -51,11 +81,19 @@ public class Renamer {
 
     //Метод возвращает расширение файла nameFile. Если расширения нет - возвращает пустую строку.
     //Расширением считается последовательность символов после последней точки.
-    private static String getExtend(String nameFile){
+    private static String getExtendFile(String nameFile){
         String extendFile="";
         int dotPos=nameFile.lastIndexOf(".");
         if((dotPos==(-1)) | (dotPos==0) | (dotPos==nameFile.length()))extendFile=""; else extendFile=nameFile.substring(dotPos+1);
         return extendFile.toLowerCase();
+    }
+
+    //Метод возвращает имя файла
+    private static String getNameFile(String nameFile){
+        String result=nameFile;
+        int dotPos=nameFile.lastIndexOf(".");
+        if(dotPos!=(-1) & dotPos!=0 & dotPos!=nameFile.length())result=nameFile.substring(0, dotPos);
+        return result;
     }
 
 }
