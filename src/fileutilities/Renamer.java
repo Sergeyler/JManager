@@ -1,56 +1,52 @@
 package fileutilities;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.io.File;
 import java.util.LinkedList;
 import javax.swing.*;
 
-//Класс предназначен для переименования объектов и групп объектов
 public class Renamer {
 
-    //Важно! Метод возвращает null, если не удалось переименовать ни один объект из списка f
-    //Если переименование было выполнено, пусть даже частично, то метод возвращает массив переименованных объектов.
-    public static File[] renameFile(File[] f, JFrame frame){
-        //Пул переименованных объектов
-        LinkedList<File> pool=new LinkedList<>();
+    //Метод влзвращает null, если переименование не произведено. Или возвращает список (не нулевой длины) объектов, переименование которых было выполнено
+    public static File[] renameFile(File[] f){
+        if(f.length==0)return null;                    //Если передан пустой массив
+        if(f.length==1)return new File[]{R1(f[0])};    //Если передан массив из одного элемента
+        if(f.length>1)return R2(f);                    //Если предполагается множественное переименование
+        return null;
+    }
 
-        //Если передан массив нулевой длины
-        if(f.length==0)return null;
+    //Метод, предназначенный для переименования еденичных объектов
+    private static File R1(File f){
+        return null;
+    }
 
-        //Сперва обрабатываем случай, когда пользователь пытается переименовать еденичный объект
-        //Вспомогательные переменные, учитываемые при переименовании единичных объектов
-        String startName="";
-        String startExtend="";
-        if(f.length==1){
-            if(!f[0].exists()){
-                JOptionPane.showMessageDialog(null, "<html>Объект:"+f[0].getAbsolutePath()+" недоступен.<br>Проверьте расположение объекта.", "Ошибка", JOptionPane.ERROR_MESSAGE);
-                return null;
-            }
-            startName=f[0].getName();
-            if(f[0].isFile()){
-                startExtend=getExtend(startName);
-            }
-        }
+    //Метод, предназначенный для переименования множества объектов
+    private static File[] R2(File[] f){
+        return null;
+    }
 
-        //Запрашиваем новое имя
-        //Сперва создаем вспомогательные переменные
-        String name=null;
+    //Метод запрашивает имя папки или файла у пользователя. Возвращает null, если пользователь отказался от ввода
+    private static String getName(String startName){
+        String name="";
+        boolean isFind;
         char[] disabledChars={'\\', '/', ':', '*', '?', '\"', '<', '>', '|'};
-        boolean isFind=false;
-
         while (true) {
-
             name=JOptionPane.showInputDialog(null, "Введите имя", startName);
-
-            System.out.println(name);
-
+            if(name==null)return null;
+            name=name.trim();
+            if(name.equals(""))return null;
+            //Проверяем наличие недопустимых символов
+            isFind=false;
+            for(char c: name.toCharArray())
+                for(char d: disabledChars){
+                    if(c==d)isFind=true;
+                }
+            if(isFind){
+                JOptionPane.showMessageDialog(null, "Введенное имя содержит недопустимые символы. Введите другое имя", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
             break;
         }
-
-        File[] poolArray=new File[pool.size()];
-        poolArray=pool.toArray(poolArray);
-        return (poolArray.length==0?null:poolArray);
+        return name;
     }
 
     //Метод возвращает расширение файла nameFile. Если расширения нет - возвращает пустую строку.
@@ -59,7 +55,7 @@ public class Renamer {
         String extendFile="";
         int dotPos=nameFile.lastIndexOf(".");
         if((dotPos==(-1)) | (dotPos==0) | (dotPos==nameFile.length()))extendFile=""; else extendFile=nameFile.substring(dotPos+1);
-        return extendFile;
+        return extendFile.toLowerCase();
     }
 
 }

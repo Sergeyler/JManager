@@ -388,7 +388,7 @@ public class MainClass {
                 }
                 case "rename":{
                     frame.setEnabled(false);
-                    File[] f=Renamer.renameFile(source.getSelectedItems(), frame);
+                    File[] f=Renamer.renameFile(source.getSelectedItems());
                     if(f!=null){
                         source.refreshPane();
                         source.setSelected(f);
