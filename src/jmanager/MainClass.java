@@ -380,6 +380,7 @@ public class MainClass {
             //В зависимости от выбранной команды выбираем действие
             switch(command){
                 case "properties":{
+                    Properties.showProperties(source.getSelectedItems());
                     break;
                 }
                 case "allot":{
