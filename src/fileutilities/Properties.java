@@ -11,7 +11,7 @@ import java.nio.file.attribute.DosFileAttributes;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.Date;
-import javax.smartcardio.ATR;
+import java.util.LinkedList;
 import javax.swing.*;
 
 //Класс, необходимый для получения свойств объектов
@@ -42,6 +42,12 @@ public class Properties {
         JLabel[] lSigns=new JLabel[10];        //Метки с наименованиями параметров
         JLabel[] lVals=new JLabel[10];         //Метки со значениями параметров
 
+        //Объекты, необходимые для форматирования выводимых на экран числовых значений
+        DateFormat df=DateFormat.getInstance();
+        NumberFormat nfLong=NumberFormat.getInstance();
+        NumberFormat nfShort=NumberFormat.getInstance();
+        nfShort.setMaximumFractionDigits(2);
+
         //Действие, выполняемое, когда массив содержит один элемент
         if(f.length==1){
 
@@ -68,10 +74,6 @@ public class Properties {
                     JOptionPane.showMessageDialog(null, "<html>Невозможно получить свойства объекта.<br>Возможно он был перемещен или удален,<br>либо у Вас нет прав на доступ к нему.", "Ошибка", JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
-                DateFormat df=DateFormat.getInstance();
-                NumberFormat nfLong=NumberFormat.getInstance();
-                NumberFormat nfShort=NumberFormat.getInstance();
-                nfShort.setMaximumFractionDigits(2);
                 lSigns[0]=new JLabel("Имя:"); lVals[0]=new JLabel(name);
                 lSigns[1]=new JLabel("Тип:"); lVals[1]=new JLabel(type);
                 lSigns[2]=new JLabel("Размер:"); lVals[2]=new JLabel(nfLong.format(new Long((long)size))+" байт ( "+nfShort.format(size/(size>=1073741824?1073741824:1048576))+" "+(size>=1073741824?"Гб":"Мб")+")");
@@ -102,10 +104,6 @@ public class Properties {
                     JOptionPane.showMessageDialog(null, "<html>Невозможно получить свойства объекта.<br>Возможно он был перемещен или удален,<br>либо у Вас нет прав на доступ к нему.", "Ошибка", JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
-                DateFormat df=DateFormat.getInstance();
-                NumberFormat nfLong=NumberFormat.getInstance();
-                NumberFormat nfShort=NumberFormat.getInstance();
-                nfShort.setMaximumFractionDigits(2);
                 lSigns[0]=new JLabel("Имя:"); lVals[0]=new JLabel(name);
                 lSigns[1]=new JLabel("Тип:"); lVals[1]=new JLabel(type);
                 lSigns[2]=new JLabel("Размер:"); lVals[2]=new JLabel(nfLong.format(new Long((long)size))+" байт ( "+nfShort.format(size/(size>=1073741824?1073741824:1048576))+" "+(size>=1073741824?"Гб":"Мб")+")");
@@ -126,7 +124,61 @@ public class Properties {
 
         //Действие, выполняемое, когда массив содержит группу элементов
         if(f.length>1){
-            System.out.println("Данное действие еще не реализовано!");
+            //Список объектов, для которых не удалось получить свойства
+            LinkedList<File> failedList=new LinkedList<>();
+            //Объект, необходимый для обхода дерева каталогов
+            Walker walker=new Walker();
+            //Признак того, что в группе объектов есть файлы
+            boolean isFileFind=false;
+            //Признак того, что в группе есть каталоги
+            boolean isFolderFind=false;
+
+            for(File fTmp: f){
+                //Если объект недоступен
+                if(!fTmp.exists()){
+                    failedList.add(fTmp);
+                    continue;
+                }
+                //Если объект - это файл
+                if(fTmp.isFile()){
+                    isFileFind=true;
+                    size+=fTmp.length();
+                    countFiles++;
+                    continue;
+                }
+                //Если объект - это папка
+                if(fTmp.isDirectory()){
+                    isFolderFind=true;
+                    countFolders++;
+                    try {
+                        walker.setFolder(fTmp);
+                        Files.walkFileTree(fTmp.toPath(), walker);
+                    } catch (IOException ex) {
+                        failedList.add(fTmp);
+                    }
+                }
+            }
+
+            if(failedList.size()==f.length){
+                JOptionPane.showMessageDialog(null, "<html>Невозможно отобразить свойства для выбранных Вами объектов.<br>Возможно они были перемещены, переименованы, либо у Вас нет прав на доступ к ним", "Ошибка", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            if(failedList.size()>0){
+                String list="<html>Свойства следующих объектов получить не удалось:<br>";
+                for(File fTmp: failedList)list+=fTmp.getAbsolutePath()+"<br>";
+                list+="Возможно они были перемещены, переименованы, либо у Вас нет прав на доступ к ним.<br>Нажмите ОК для продолжения.";
+                JOptionPane.showMessageDialog(null, list, "Внимание", JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            lSigns[0]=new JLabel("Тип:");
+            if(isFileFind & !isFolderFind)lVals[0]=new JLabel("Файлы");
+            if(!isFileFind & isFolderFind)lVals[0]=new JLabel("Папки");
+            if(isFileFind & isFolderFind)lVals[0]=new JLabel("Файлы и папки");
+            lSigns[1]=new JLabel("Количество файлов:"); lVals[1]=new JLabel(nfLong.format(new Long((long)countFiles)));
+            lSigns[2]=new JLabel("Количество папок:"); lVals[2]=new JLabel(nfLong.format(new Long((long)countFolders)));
+            lSigns[3]=new JLabel("Общий размер:"); lVals[3]=new JLabel(nfLong.format(new Long((long)size))+" байт ( "+nfShort.format(size/(size>=1073741824?1073741824:1048576))+" "+(size>=1073741824?"Гб":"Мб")+")");
+
         }
 
         //Выводим результат работы на экран
@@ -150,9 +202,17 @@ public class Properties {
     //Класс необходим для реализации обхода папок
     private static class Walker extends SimpleFileVisitor<Path>{
 
-        private final Path root;
+        private Path root;
+
+        Walker(){
+            root=null;
+        }
 
         Walker(File r){
+            root=r.toPath();
+        }
+
+        void setFolder(File r){
             root=r.toPath();
         }
 
