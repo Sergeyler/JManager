@@ -47,7 +47,7 @@ public class Deleter {
             for(File fTmp: failedList){
                 str+=fTmp.getAbsolutePath()+"<br>";
             }
-            str+="Возможно у Вас нет прав доступа к ним";
+            str+="Возможно у Вас нет прав на доступ к ним";
             JOptionPane.showMessageDialog(null, str, "Внимание", JOptionPane.INFORMATION_MESSAGE);
         }
 
@@ -69,4 +69,5 @@ public class Deleter {
         }
 
     }
+
 }

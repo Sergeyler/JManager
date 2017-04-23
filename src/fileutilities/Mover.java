@@ -11,13 +11,32 @@ import java.util.LinkedList;
 //Данный класс используется для реализации копирования и перемещения объектов
 public class Mover {
 
-    //Метод возвращает список удачно скопированных объектов. Если ничего скопировать не удалось - возвращает null
-    public static File[] copy(File[] source, File target){
+    public static final int COPY_OPT=1;
+    public static final int MOVE_OPT=2;
+
+    //Метод возвращает список удачно скопированных объектов, находящихся на момент завершения метода в папке target и в ее подпапках. Если ничего скопировать не удалось - возвращает null
+    //Передача папки, в которой находятся объекты source необходима для упрощения кода метода
+    //Параметр opt определяет тип операции: копирование (opt=COPY_OPT) или перемещение (opt=MOVE_OPT)
+    public static File[] copy(File sourceFolder, File[] source, File targetFolder, int opt){
 
         //Проверяем тривиальные случаи
         if(source.length==0)return null;
-        if(!target.exists())return null;
+        if(!targetFolder.exists())return null;
+        if(!sourceFolder.exists())return null;
 
+        //Список объектов, которые не удалось скопировать
+        LinkedList<File> failedList=new LinkedList<>();
+
+        //Список объектов, которые удалось скопировать (в этом списке содержатся объекты, после копирования уже находящиеся в target)
+        LinkedList<File> successList=new LinkedList<>();
+
+        //Список путей-источников
+        LinkedList<File> s=new LinkedList<>();
+
+        //Список путей-приемников
+        LinkedList<File> t=new LinkedList<>();
+
+        //Объект, необходимый для формирования списка объектов для копирования
         Walker walker=new Walker(){
 
             @Override
@@ -31,18 +50,6 @@ public class Mover {
             }
 
         };
-
-        //Список объектов, которые не удалось скопировать
-        LinkedList<File> failedList=new LinkedList<>();
-
-        //Список объектов, которые удалось скопировать (в этом списке содержатся объекты, после копирования уже находящиеся в target)
-        LinkedList<File> successList=new LinkedList<>();
-
-        //Список путей-источников
-        LinkedList<File> s=new LinkedList<>();
-
-        //Список путей-приемников
-        LinkedList<File> t=new LinkedList<>();
 
         //Перебор путей в источнике
         for(File fTmp: source){
@@ -58,7 +65,7 @@ public class Mover {
     }
 
     //Класс, предназначенный для обхода дерева каталогов.
-    //В данном случае в качестве упражнения применена его реализация в качестве абстрактного класса
+    //В данном случае в качестве упражнения применено его представление в качестве абстрактного класса с последующей релизацией в теле метода copy
     private static abstract class Walker extends SimpleFileVisitor<Path>{}
 
 
