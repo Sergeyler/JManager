@@ -410,6 +410,8 @@ public class MainClass {
                     break;
                 }
                 case "del":{
+                    Deleter.delete(source.getSelectedItems());
+                    source.refreshPane();
                     break;
                 }
                 case "move":{
