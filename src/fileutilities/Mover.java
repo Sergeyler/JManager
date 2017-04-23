@@ -1,6 +1,11 @@
 package fileutilities;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.LinkedList;
 
 //Данный класс используется для реализации копирования и перемещения объектов
@@ -12,6 +17,20 @@ public class Mover {
         //Проверяем тривиальные случаи
         if(source.length==0)return null;
         if(!target.exists())return null;
+
+        Walker walker=new Walker(){
+
+            @Override
+            public FileVisitResult visitFile(Path f, BasicFileAttributes atr) throws IOException{
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path f, IOException ex){
+                return FileVisitResult.CONTINUE;
+            }
+
+        };
 
         //Список объектов, которые не удалось скопировать
         LinkedList<File> failedList=new LinkedList<>();
@@ -37,6 +56,10 @@ public class Mover {
         return tFile;
 
     }
+
+    //Класс, предназначенный для обхода дерева каталогов.
+    //В данном случае в качестве упражнения применена его реализация в качестве абстрактного класса
+    private static abstract class Walker extends SimpleFileVisitor<Path>{}
 
 
 }
