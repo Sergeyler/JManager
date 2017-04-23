@@ -21,6 +21,11 @@ public class Mover {
         //Список путей-приемников
         LinkedList<File> t=new LinkedList<>();
 
+        //Перебор путей в источнике
+        for(File fTmp: source){
+            
+        }
+
     }
 
 
