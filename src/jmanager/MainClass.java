@@ -418,6 +418,11 @@ public class MainClass {
                     break;
                 }
                 case "copy":{
+                    File[] f=Mover.copy(source.getSelectedItems(), target.getFolder());
+                    if(f!=null){
+                        target.refreshPane();
+                        target.setSelected(f);
+                    }
                     break;
                 }
             }
