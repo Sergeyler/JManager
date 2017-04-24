@@ -2,29 +2,26 @@ package fileutilities;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.DosFileAttributes;
-import java.text.DateFormat;
-import java.text.NumberFormat;
-import java.util.Date;
-import java.util.LinkedList;
+import java.nio.file.*;
+import java.nio.file.attribute.*;
+import java.text.*;
+import java.util.*;
 import javax.swing.*;
 
 //Класс, необходимый для получения свойств объектов
 public class Properties {
 
-    private static String name;         //Переменная для хранения имен объектов
-    private static String type;         //Переменная для хранения типов объектов
-    private static double size;           //Переменная для хранения размеров объектов
-    private static Date dCreate;        //Переменная для хранения дат создания объектов
-    private static Date dOpen;          //Переменная для хранения дат открытия объектов
-    private static Date dModif;         //Переменная для хранения дат последней модификации объектов
-    private static int countFiles;      //Переменная для хранения количества файлов
-    private static int countFolders;    //Переменная для хранения количества папок
+    private static String name;          //Переменная для хранения имен объектов
+    private static String type;          //Переменная для хранения типов объектов
+    private static double size;          //Переменная для хранения размеров объектов
+    private static double size_tmp;      //Переменная для хранения суммарного размера файлов подгруппы
+    private static Date dCreate;         //Переменная для хранения дат создания объектов
+    private static Date dOpen;           //Переменная для хранения дат открытия объектов
+    private static Date dModif;          //Переменная для хранения дат последней модификации объектов
+    private static int countFiles;       //Переменная для хранения количества файлов
+    private static int countFiles_tmp;   //Переменная для хранения количества файлов в подгруппе
+    private static int countFolders;     //Переменная для хранения количества папок
+    private static int countFolders_tmp; //Переменная для хранения количества папок в подгруппе
 
     public static void showProperties(File[] f){
         //Обнуляем содержимое числовых переменных
@@ -94,7 +91,13 @@ public class Properties {
                     name=f[0].getName();
                     type="Папка";
                     //Следующая строка кода подсчитывает количество и общий размер файлов в папке и количество подпапок в ней
+                    size_tmp=0;
+                    countFiles_tmp=0;
+                    countFolders_tmp=0;
                     Files.walkFileTree(f[0].toPath(), new Walker(f[0]));
+                    size=size_tmp;
+                    countFiles=countFiles_tmp;
+                    countFolders=countFolders_tmp;
                     atr=Files.readAttributes(f[0].toPath(), DosFileAttributes.class);
                     dCreate=new Date(atr.creationTime().toMillis());
                     dOpen=new Date(atr.lastAccessTime().toMillis());
@@ -152,7 +155,13 @@ public class Properties {
                     countFolders++;
                     try {
                         walker.setFolder(fTmp);
+                        size_tmp=0;
+                        countFiles_tmp=0;
+                        countFolders_tmp=0;
                         Files.walkFileTree(fTmp.toPath(), walker);
+                        size+=size_tmp;
+                        countFiles+=countFiles_tmp;
+                        countFolders+=countFolders_tmp;
                     } catch (IOException ex) {
                         failedList.add(fTmp);
                     }
@@ -218,14 +227,14 @@ public class Properties {
 
         @Override
         public FileVisitResult visitFile(Path f, BasicFileAttributes atr) throws IOException{
-            size+=atr.size();
-            countFiles++;
+            size_tmp+=atr.size();
+            countFiles_tmp++;
             return FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult preVisitDirectory(Path f, BasicFileAttributes atr) throws IOException{
-            if(!f.equals(root))countFolders++;
+            if(!f.equals(root))countFolders_tmp++;
             return FileVisitResult.CONTINUE;
         }
 

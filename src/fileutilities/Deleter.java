@@ -1,11 +1,7 @@
 package fileutilities;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.io.*;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
@@ -65,6 +61,11 @@ public class Deleter {
         @Override
         public FileVisitResult visitFile(Path f, BasicFileAttributes atr) throws IOException{
             f.toFile().delete();
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path f, IOException exc){
             return FileVisitResult.CONTINUE;
         }
 

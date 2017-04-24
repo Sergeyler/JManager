@@ -1,11 +1,7 @@
 package jmanager;
 
-import java.awt.BorderLayout;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import fileutilities.*;
 import java.io.File;
@@ -415,11 +411,16 @@ public class MainClass {
                     break;
                 }
                 case "move":{
+                    //Список файлов и папок, которые выделены пользоватлем в источнике.
+                    //Существует вероятность, что при перемещении объектов часть первоначально выделенных объектов в источнике переместить не удастся.
+                    //Их нужно будет оставить выделенными
+                    File[] sourceSelected=source.getSelectedItems();
                     File[] f=Mover.copy(source.getFolder(), source.getSelectedItems(), target.getFolder(), Mover.MOVE_OPT);
                     if(f!=null){
                         target.refreshPane();
                         source.refreshPane();
                         target.setSelected(f);
+                        source.setSelected(sourceSelected);
                     }
                     break;
                 }
