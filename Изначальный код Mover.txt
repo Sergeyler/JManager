@@ -1,0 +1,75 @@
+package fileutilities;
+
+import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.LinkedList;
+
+//Данный класс используется для реализации копирования и перемещения объектов
+public class Mover {
+
+    public static final int COPY_OPT=1;
+    public static final int MOVE_OPT=2;
+
+    private static final LinkedList<File> s=new LinkedList<>();        //Список путей-источников
+    private static final LinkedList<File> t=new LinkedList<>();        //Список путей-приемников
+    private static final LinkedList<File> err=new LinkedList<>();      //Список объектов, которые не удалось копировать/переместить
+    private static final LinkedList<File> success=new LinkedList<>();  //Список объектов, которые удалось переместить/скопировать
+
+    //Метод возвращает список удачно скопированных объектов, находящихся на момент завершения метода в папке target и в ее подпапках. Если ничего скопировать не удалось - возвращает null
+    //Передача папки, в которой находятся объекты source необходима для упрощения кода метода
+    //Параметр opt определяет тип операции: копирование (opt=COPY_OPT) или перемещение (opt=MOVE_OPT)
+    public static File[] copy(File sourceFolder, File[] source, File targetFolder, int opt){
+
+        //Проверяем тривиальные случаи
+        if(source.length==0)return null;
+        if(!targetFolder.exists())return null;
+        if(!sourceFolder.exists())return null;
+
+        Walker walker=new Walker() {
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path f, IOException ex){
+                s.add(f.toFile());
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path f, BasicFileAttributes atr) throws IOException{
+                s.add(f.toFile());
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path f, IOException exc){
+                err.add(f.toFile());
+                return FileVisitResult.CONTINUE;
+            }
+
+        };
+
+        //Формируем список источников
+        for(File fTmp: source){
+            if(!fTmp.exists())continue;
+            if(fTmp.isFile())s.add(fTmp);
+            if(fTmp.isDirectory()){
+                try {
+                    Files.walkFileTree(fTmp.toPath(), walker);
+                } catch (IOException ex) {}
+            }
+        }
+
+        //Формируем список приемников
+        int pos=sourceFolder.getAbsolutePath().length();
+        for(File fTmp: s){
+            t.add(new File(targetFolder.getAbsolutePath()+File.separator+fTmp.getAbsolutePath().substring(pos)));
+        }
+
+        return null;
+
+    }
+
+    //Класс необходим для реализации обхода и последовательного удаления объектов
+    private static abstract class Walker extends SimpleFileVisitor<Path>{}
+
+}

@@ -384,25 +384,19 @@ public class MainClass {
                     break;
                 }
                 case "rename":{
-                    frame.setEnabled(false);
                     File[] f=Renamer.renameFile(source.getSelectedItems());
                     if(f!=null){
                         source.refreshPane();
                         source.setSelected(f);
                     }
-                    frame.setEnabled(true);
-                    frame.toFront();
                     break;
                 }
                 case "create":{
-                    frame.setEnabled(false);
                     File f=Creater.createFolder(source.getFolder());
                     if(f!=null){
                         source.refreshPane();
                         source.setSelected(f);
                     }
-                    frame.setEnabled(true);
-                    frame.toFront();
                     break;
                 }
                 case "del":{
@@ -413,9 +407,9 @@ public class MainClass {
                 case "move":{
                     //Список файлов и папок, которые выделены пользоватлем в источнике.
                     //Существует вероятность, что при перемещении объектов часть первоначально выделенных объектов в источнике переместить не удастся.
-                    //Их нужно будет оставить выделенными
+                    //Их нужно будет оставить выделенными. Для этого и нужен массив sourceSelected со списком первоначально выделенных объектов
                     File[] sourceSelected=source.getSelectedItems();
-                    File[] f=Mover.copy(source.getFolder(), source.getSelectedItems(), target.getFolder(), Mover.MOVE_OPT);
+                    File[] f=Mover.copy(source.getFolder(), sourceSelected, target.getFolder(), Mover.MOVE_OPT);
                     if(f!=null){
                         target.refreshPane();
                         source.refreshPane();
