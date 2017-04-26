@@ -404,26 +404,9 @@ public class MainClass {
                     source.refreshPane();
                     break;
                 }
-                case "move":{
-                    //Список файлов и папок, которые выделены пользоватлем в источнике.
-                    //Существует вероятность, что при перемещении объектов часть первоначально выделенных объектов в источнике переместить не удастся.
-                    //Их нужно будет оставить выделенными. Для этого и нужен массив sourceSelected со списком первоначально выделенных объектов
-                    File[] sourceSelected=source.getSelectedItems();
-                    File[] f=Mover.copy(source.getFolder(), sourceSelected, target.getFolder(), Mover.MOVE_OPT);
-                    if(f!=null){
-                        target.refreshPane();
-                        source.refreshPane();
-                        target.setSelected(f);
-                        source.setSelected(sourceSelected);
-                    }
-                    break;
-                }
+                case "move":
                 case "copy":{
-                    File[] f=Mover.copy(source.getFolder(), source.getSelectedItems(), target.getFolder(), Mover.COPY_OPT);
-                    if(f!=null){
-                        target.refreshPane();
-                        target.setSelected(f);
-                    }
+                    //Вставить код копирования/перемещения
                     break;
                 }
             }

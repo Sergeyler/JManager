@@ -1,25 +1,67 @@
 package fileutilities;
 
+import java.awt.Toolkit;
 import java.io.*;
+import java.nio.*;
+import javax.swing.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
-//Данный класс используется для реализации копирования и перемещения объектов
-public class Mover {
+import javax.swing.SwingWorker;
 
+//Данный класс используется для реализации копирования и перемещения объектов
+public class Mover extends SwingWorker<Void, Void>{
+
+    //Перечень значений опций копирования
     public static final int COPY_OPT=1;
     public static final int MOVE_OPT=2;
 
-    //Метод возвращает список удачно скопированных объектов, находящихся на момент завершения метода в папке target и в ее подпапках. Если ничего скопировать не удалось - возвращает null
-    //Передача папки, в которой находятся объекты source необходима для упрощения кода метода
-    //Параметр opt определяет тип операции: копирование (opt=COPY_OPT) или перемещение (opt=MOVE_OPT)
-    public static File[] copy(File sourceFolder, File[] source, File targetFolder, int opt){
+    //Перечень основных параметров работы класса
+    private final File sourceFolder;
+    private final File[] source;
+    private final File targetFolder;
+    private final int copyOption;
 
-        //Проверяем тривиальные случаи
-        if(source.length==0)return null;
-        if(!targetFolder.exists())return null;
-        if(!sourceFolder.exists())return null;
+    //Элементы интерфейса для отображения процесса копирования
+    private static JFrame copyFrame=null;
+    private static JLabel label=null;
+    private static JProgressBar progressBar=null;
+    private static String titleFrame="";
+    private static String labelPrefix="";
 
+    public Mover (File sourceFolder, File[] source, File targetFolder, int copyOption){
+        this.sourceFolder=sourceFolder;
+        this.source=source;
+        this.targetFolder=targetFolder;
+        this.copyOption=copyOption;
+
+        //Создаем окно копирования
+        if(copyOption==COPY_OPT){
+            titleFrame="Копирование";
+            labelPrefix="Копирую: ";
+        }
+        if(copyOption==MOVE_OPT){
+            titleFrame="Перемещение";
+            labelPrefix="Перемещаю: ";
+        }
+        if(copyFrame==null){
+            int frameWidth=600;
+            int frameHeight=200;
+            copyFrame=new JFrame(titleFrame);
+            copyFrame.setSize(frameWidth, frameHeight);
+            copyFrame.setResizable(false);
+            int xPos=Toolkit.getDefaultToolkit().getScreenSize().width/2-frameWidth/2;
+            int yPos=Toolkit.getDefaultToolkit().getScreenSize().height/2-frameHeight/2;
+            copyFrame.setLocation(xPos, yPos);
+            
+        }
+        label.setText(labelPrefix);
+        progressBar.setValue(0);
+        copyFrame.setVisible(true);
+    }
+
+    @Override
+    protected Void doInBackground() throws Exception {
         Walker walker=new Walker() {
 
             @Override
@@ -44,8 +86,11 @@ public class Mover {
 
         };
 
-        return null;
+        for(int i=0;i<101;i++){
+            Thread.sleep(100);
+        }
 
+        return null;
     }
 
     //Класс необходим для реализации обхода и последовательного удаления объектов
