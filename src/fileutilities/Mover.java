@@ -1,6 +1,5 @@
 package fileutilities;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.*;
@@ -30,8 +29,8 @@ public class Mover extends SwingWorker<Void, Void>{
     //Список элементов пользовательского интерфейса, необходимых для работы процедуры
 
     private static JFrame copyFrame=null;
-    private static JLabel label=null;
-    private static JProgressBar progressBar=null;
+    private static final JLabel label=new JLabel("");
+    private static final JProgressBar progressBar=new JProgressBar();
     private static String titleFrame="";
     private static String labelPrefix="";
 
@@ -52,35 +51,27 @@ public class Mover extends SwingWorker<Void, Void>{
         }
         if(copyFrame==null){
             int frameWidth=600;
-            int frameHeight=150;
+            int frameHeight=100;
             copyFrame=new JFrame(titleFrame);
-            copyFrame.setLayout(new BorderLayout());
             copyFrame.setSize(frameWidth, frameHeight);
             copyFrame.setResizable(false);
             copyFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
             int xPos=Toolkit.getDefaultToolkit().getScreenSize().width/2-frameWidth/2;
             int yPos=Toolkit.getDefaultToolkit().getScreenSize().height/2-frameHeight/2;
             copyFrame.setLocation(xPos, yPos);
-
-            JPanel p1=new JPanel();
-            p1.setLayout(new BoxLayout(p1, BoxLayout.X_AXIS));
-            p1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            label=new JLabel("");
+            Box p0=Box.createVerticalBox();
+            Box p1=Box.createHorizontalBox();
+            p0.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             p1.add(label);
             p1.add(Box.createHorizontalGlue());
-
-            JPanel p0=new JPanel();
-            p0.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            p0.setLayout(new BoxLayout(p0, BoxLayout.Y_AXIS));
             p0.add(p1);
-            p0.add(Box.createVerticalStrut(5));
-            progressBar=new JProgressBar();
-            progressBar.setPreferredSize(new Dimension(frameWidth-200, 50));
+            p0.add(Box.createVerticalGlue());
             p0.add(progressBar);
-            copyFrame.add(p0, SwingConstants.CENTER);
+            progressBar.setPreferredSize(new Dimension(frameWidth-20, 25));
+            copyFrame.add(p0);
         }
         copyFrame.setTitle(titleFrame);
-        label.setText(labelPrefix);
+        label.setText(labelPrefix);        //Предельная длина выводимого пути - 139 символов
         progressBar.setMinimum(0);
         progressBar.setValue(0);
         copyFrame.setVisible(true);
@@ -116,7 +107,7 @@ public class Mover extends SwingWorker<Void, Void>{
 
         for(int i=0;i<101;i++){
             progressBar.setValue(i);
-            Thread.sleep(100);
+            Thread.sleep(50);
         }
 
         copyFrame.setVisible(false);
