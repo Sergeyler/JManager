@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import fileutilities.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 
 public class MainClass {
@@ -43,6 +45,11 @@ public class MainClass {
     private final JPanel centerPanel=new JPanel();
     private final FilePane leftFilePane;
     private final FilePane rightFileJPane;
+
+    //Следующие поля и методы необходимы для реализации процедуры копирования/перемещения файлов
+    private Mover task;
+    private FilePane source=null;
+    private FilePane target=null;
 
     public MainClass() {
         //Предварительные действия по формированию окна программы
@@ -362,8 +369,6 @@ public class MainClass {
             int pos=e.getActionCommand().indexOf('_');
             pane=e.getActionCommand().substring(pos+1);
             command=e.getActionCommand().substring(0, pos);
-            FilePane source=null;
-            FilePane target=null;
             if(pane.equals("left")){
                 source=leftFilePane;
                 target=rightFileJPane;
@@ -406,7 +411,33 @@ public class MainClass {
                 }
                 case "move":
                 case "copy":{
-                    //Вставить код копирования/перемещения
+                    frame.setEnabled(false);
+                    int opt=0;
+                    if(command.equals("copy"))opt=Mover.COPY_OPT;
+                    if(command.equals("move"))opt=Mover.MOVE_OPT;
+                    task=new Mover(source.getFolder(), source.getSelectedItems(), target.getFolder(), opt);
+                    task.addPropertyChangeListener(new PropertyChangeListener() {
+
+                        @Override
+                        public void propertyChange(PropertyChangeEvent evt) {
+                            if(!evt.getPropertyName().equals("endMover"))return;
+                            source.refreshPane();
+                            target.refreshPane();
+                            File[] f;
+                            f=task.getSourceAllocateList();
+                            if(f!=null)if(f.length>0){
+                                source.setSelected(f);
+                            }
+                            f=task.getTargetAllocateList();
+                            if(f!=null)if(f.length>0){
+                                target.setSelected(f);
+                            }
+                            frame.setEnabled(true);
+                            frame.toFront();
+                        }
+
+                    });
+                    task.execute();
                     break;
                 }
             }
