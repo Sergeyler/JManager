@@ -1,8 +1,6 @@
 package fileutilities;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +9,7 @@ import java.nio.*;
 import javax.swing.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.LinkedList;
 
 import javax.swing.SwingWorker;
 
@@ -43,6 +42,10 @@ public class Mover extends SwingWorker<Void, Void>{
     private static JComboBox<String> optForAction=new JComboBox<>(new String[]{"Не копировать этот файл", "Заменить файл в папке назначения", "Скопировать, но сохранить оба файла"});
     private static JCheckBox defaultActBox=new JCheckBox("Всегда выполнять выбранное действие", true);
     private static JButton okBtn=new JButton("OK");
+
+    //поля, необходимые непосредственно для копирования файлов и папок
+    private LinkedList<File> s=new LinkedList<>();    //Список источников
+    private LinkedList<File> t=new LinkedList<>();    //Список приемников
 
     public Mover (File sourceFolder, File[] source, File targetFolder, int copyOption){
         this.sourceFolder=sourceFolder;
@@ -146,6 +149,11 @@ public class Mover extends SwingWorker<Void, Void>{
 
     @Override
     protected Void doInBackground() throws Exception {
+
+        //Парвый этап - формироваиние текущего списка файлов из target. Это необходимо, чтобы после работы процедуры копирования корректно отобразить в панели-приемнике список изменений
+        
+
+
         Walker walker=new Walker() {
 
             @Override
@@ -169,19 +177,6 @@ public class Mover extends SwingWorker<Void, Void>{
             }
 
         };
-
-        progressBar.setMaximum(100);
-
-        for(int i=0;i<101;i++){
-            progressBar.setValue(i);
-            Thread.sleep(25);
-            if(i==50){
-                conflictDialog.setVisible(true);
-            }
-        }
-
-        copyFrame.setVisible(false);
-        firePropertyChange("endMover", null, null);
 
         return null;
     }
