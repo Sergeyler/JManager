@@ -9,6 +9,7 @@ import java.nio.*;
 import javax.swing.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import javax.swing.SwingWorker;
@@ -150,7 +151,9 @@ public class Mover extends SwingWorker<Void, Void>{
     @Override
     protected Void doInBackground() throws Exception {
 
-        //Парвый этап - формироваиние текущего списка файлов из target. Это необходимо, чтобы после работы процедуры копирования корректно отобразить в панели-приемнике список изменений
+        //Первый этап - формироваиние текущего списка файлов из target. Это необходимо, чтобы после работы процедуры копирования корректно отобразить в панели-приемнике список изменений
+        LinkedList<File> al0=new LinkedList<>();
+        al0.addAll(Arrays.asList(targetFolder.listFiles()));
         
 
 
